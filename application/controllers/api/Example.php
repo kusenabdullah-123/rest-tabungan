@@ -54,7 +54,8 @@ class Example extends REST_Controller {
                 // Set the response and exit
                 $this->response([
                     'status'=>TRUE,
-                    'id' => $id
+                    'id' => $id,
+                    'data'=>$users
                 ], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
             }
             else

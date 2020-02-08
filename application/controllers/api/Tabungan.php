@@ -20,141 +20,76 @@ class Tabungan extends REST_Controller
 	}
 	public function index_get()
 	{
-
-		$data = [
-			'tabungan' =>$this->tabung->getDataTabungan(),
+		$tabungans = [
+			'tabungan'=> $this->tabung->getDataTabungan(),
 			'saldo' => $this->tabung->getSaldo()
-		]
-
-		
-		$id = $this->get('id');
-		if ($id === NULL) {
-			if ($data) {
-			// Set the response and exit
+		];
+		$id = (int) $this->get('id');
+		if ($id == NULL) {
+			if ($tabungans) {
 				$this->response([
-					'status' => TRUE,
-					'data' => $data
-				], REST_Controller::HTTP_OK); 
+					'status'=>TRUE,
+					'Data'=> $tabungans
+				], REST_Controller::HTTP_OK);
 			}else {
-				// Set the response and exit
 				$this->response([
-					'status' => TRUE,
-					'data' => 'Data Not Found'
+					'status'=>FALSE,
+					'Message'=> 'No Tabungan Found'
 				], REST_Controller::HTTP_NOT_FOUND);
-			}	
-		}
-		$id = (int) $id;
-
-		if ($id <=0) {
-			$this->response([
-				'status' => FALSE,
-				'message' => 'id not found'
-				], REST_Controller::HTTP_BAD_REQUEST); // BAD_REQUEST (400) being the HTTP response code
-		}
-
-		$users = NULL;
-		if (!empty($data)) {
-			foreach ($data as $key => $value) {
-				if ($value['id_tabungan'] && $value['id_tabungan'] == $id ) {
-					$users = $value;
-				}
 			}
 		}
-
-		if (!empty($users)) {
-			$this->response([
-				'status' => TRUE,
-				'data' => $users
-			], REST_Controller::HTTP_OK); 
-		}else {
-			$this->response([
-				'status' => FALSE,
-				'data' => 'Data Not Found'
-			], REST_Controller::HTTP_NOT_FOUND);
+		if ($id <=0) {
+			$this->response(NULL, REST_Controller::HTTP_BAD_REQUEST);
+		}
+		$tabungan = NULL;
+		if (!empty($tabungans['tabungan'])) {
+			foreach ($tabungans['tabungan'] as $key => $value) {
+				if (isset($value['id_tabungan']) && $value['id_tabungan'] ==$id) {
+					$tabungan = $value;
+				}
+			}			
 		}
 
+		if (!empty($tabungan)) {
+			$this->set_response($tabungan, REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+		}else {
+			$this->set_response([
+                'status' => FALSE,
+                'message' => 'Tabungan could not be found'
+            ], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}
 	}
 
-
+	// Insert Method
 	public function index_post()
 	{
-		$id = (int)$this->post('user_id');
-		$tanggal = $this->post('tanggal');
-		$penarikan = (int)$this->post('penarikan');
-		$setoran = (int)$this->post('setoran');
-		$sal = $this->tabung->getSaldo($id);
-		$saldo =$sal +  $setoran - $penarikan;
-
-		if ($id === null) {
-			$this->response([
-				'status' => FALSE,
-				'message' => 'id is Required'
-			], REST_Controller::HTTP_NOT_FOUND);
-		}elseif ($tanggal === null ) {
-			$this->response([
-				'status' => FALSE,
-				'message' => 'tanggal is Required'
-			], REST_Controller::HTTP_NOT_FOUND);
-		}elseif ($penarikan === null) {
-			$this->response([
-				'status' => FALSE,
-				'message' => 'penarikan is Required'
-			], REST_Controller::HTTP_NOT_FOUND);
-		}elseif ($setoran === null) {
-			$this->response([
-				'status' => FALSE,
-				'message' => 'setoran is Required'
-			], REST_Controller::HTTP_NOT_FOUND);
-		}
-
-
+		(int)$saldo = $this->tabung->getSaldo() + $this->post('setoran') - $this->post('penarikan');
 		$data = [
-			'tanggal'=> $tanggal,
-			'setoran' => $setoran,
-			'penarikan' => $penarikan,
+			'tanggal' => $this->post('tanggal'),
+			'setoran'=> $this->post('setoran'),
+			'penarikan' => $this->post('penarikan'),
 			'saldo' => $saldo,
-			'user_id' => $id
-
+			'user_id' => 1
 		];
-		$insert = $this->tabung->insertData($data);
-		if ($insert > 0 ) {
-			$this->response([
-				'status' => TRUE,
-				'message' => 'New Tabungan Created Success'
-			], REST_Controller::HTTP_CREATED); 
+		if ($saldo < 0 ) {
+			$this->set_response([
+				'Status' => FALSE,
+				'Message' => 'Saldo Kurang'
+			],REST_Controller::HTTP_BAD_REQUEST);
 		}else {
-			$this->response([
-				'status' => FALSE,
-				'message' => 'Failed Created'
-			], REST_Controller::HTTP_NOT_FOUND); 
+		if ($this->tabung->insertData($data) > 0) {
+			$this->set_response([
+				'Status' => TRUE,
+				'Message' => 'Succes Insert Data'
+			],REST_Controller::HTTP_CREATED);
+		}else {
+			$this->set_response([
+				'Status' => FALSE,
+				'Message' => 'Failed Insert Data'
+			],REST_Controller::HTTP_BAD_REQUEST);
+		}	
 		}
 	}
 
-	public function index_delete()
-	{
-		$id = (int)$this->delete('id');
-		if ($id === NULL) {
-			$this->response([
-				'status' => FALSE,
-				'message' => 'id is Required'
-			], REST_Controller::HTTP_NOT_FOUND);
-		}
-		if ($id <=0) {
-			$this->response([
-				'status' => FALSE,
-				'message' => 'id not found'
-				], REST_Controller::HTTP_BAD_REQUEST); // BAD_REQUEST (400) being the HTTP response code
-		}
-		$delete = $this->tabung->deleteData($id);
-		if ($delete > 0 ) {
-			
-			$this->response([
-				'status' => TRUE,
-				'id' => $id,
-				'message' => 'Deleted The Resource'
-			], REST_Controller::HTTP_OK); 
-		}
-		
-	}
 
 }

@@ -13,10 +13,10 @@ class Tabungan_model extends CI_Model {
 		return $this->db->get( $this->_tabel())->result_array();
 	}
 
-	private function _saldo($id)
+	private function _saldo()
 	{
 		$this->db->select('SUM(`tabungan`.`setoran`) as jml_setoran, SUM(`tabungan`.`penarikan`) as jml_penarikan');
-		$this->db->from('tabungan');
+		$this->db->from($this->_tabel());
 		return $this->db->get()->row_array();
 	}
 
