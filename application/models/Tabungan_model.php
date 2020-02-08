@@ -37,6 +37,12 @@ class Tabungan_model extends CI_Model {
 		$this->db->delete($this->_tabel());
 		return $this->db->affected_rows();
 	}
+	public function updateData($id,$data=[])
+	{
+		$this->db->where('id_tabungan', $id);
+		$this->db->update($this->_tabel(), $data);
+		return $this->db->affected_rows();
+	}
 }
 
 /* End of file Tabungan_model.php */
