@@ -80,7 +80,7 @@ class Tabungan extends REST_Controller
 			if ($this->tabung->insertData($data) > 0) {
 				$this->set_response([
 					'Status' => TRUE,
-					'Message' => 'Succes Insert Data'
+					'Message' => 'Succes Insert Data Tabungan'
 				],REST_Controller::HTTP_CREATED);
 			}else {
 				$this->set_response([
