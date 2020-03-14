@@ -16,10 +16,15 @@ class Tabungan extends REST_Controller
 	{
 		parent::__construct();
 		$this->load->model('Tabungan_model','tabung');
+		header("Access-Control-Allow-Methods: GET,POST,PUT,DELETE, OPTIONS");
+		header("Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding");
 
 	}
 	public function index_get()
 	{
+		header("Access-Control-Allow-Origin: *");
+		header("Access-Control-Allow-Methods: GET");
+		header("Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding");
 		$tabungans = [
 			'tabungan'=> $this->tabung->getDataTabungan(),
 			'saldo' => $this->tabung->getSaldo()
@@ -63,6 +68,9 @@ class Tabungan extends REST_Controller
 	// Insert Method
 	public function index_post()
 	{
+		header("Access-Control-Allow-Origin: *");
+		header("Access-Control-Allow-Methods: POST");
+		header("Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding");
 		(int)$saldo = $this->tabung->getSaldo() + $this->post('setoran') - $this->post('penarikan');
 		$data = [
 			'tanggal' => $this->post('tanggal'),
@@ -94,6 +102,9 @@ class Tabungan extends REST_Controller
 	// Delete Method
 	public function index_delete()
 	{
+		header("Access-Control-Allow-Origin: *");
+		header("Access-Control-Allow-Methods: DELETE");
+		header("Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding");
 		$id = (int) $this->delete('id');
 
         // Validate the id.
@@ -125,6 +136,9 @@ class Tabungan extends REST_Controller
 
     public function index_put()
     {
+    	header("Access-Control-Allow-Origin: *");
+		header("Access-Control-Allow-Methods: PUT");
+		header("Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding");
     	$id = (int) $this->put('id');
     	if ($id == NULL) {
     		$message = [
